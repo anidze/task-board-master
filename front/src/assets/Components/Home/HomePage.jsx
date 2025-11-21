@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FiLogOut, FiCheckCircle } from "react-icons/fi";
+import { FiLogOut, FiEdit2, FiPlus } from "react-icons/fi";
 
 export default function HomePage() {
   const navigate = useNavigate();
@@ -14,6 +14,7 @@ export default function HomePage() {
       navigate("/");
     }
   }, [user, navigate]);
+
   const handleLogout = () => {
     localStorage.removeItem("user");
     navigate("/");
@@ -22,130 +23,176 @@ export default function HomePage() {
   if (!user) return null;
 
   return (
-    <div
-      className="min-h-screen p-6"
-      style={{ backgroundColor: "#F8FAFC" }}
-    >
+    <div className="min-h-screen p-6" style={{ backgroundColor: "#F8FAFC" }}>
       {/* Header */}
-      <div
-        className="max-w-6xl mx-auto bg-white rounded-2xl shadow-lg p-6 mb-6"
-        style={{ boxShadow: "0 10px 40px #00000033" }}
-      >
-        <div className="flex justify-between items-center">
+      <div className="max-w-6xl mx-auto flex justify-between items-center mb-8">
+        <div>
+          <h1 className="text-3xl font-bold" style={{ color: "#3662E3" }}>
+            My Task Board
+          </h1>
+          <p style={{ color: "#97A3B6" }} className="text-sm mt-1">
+            Tasks to keep organised
+          </p>
+        </div>
+        <button
+          onClick={handleLogout}
+          className="flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-white transition-all hover:scale-105"
+          style={{
+            backgroundColor: "#DD524C",
+            boxShadow: "0 4px 15px rgba(221, 82, 76, 0.4)",
+          }}
+        >
+          <FiLogOut />
+          Logout
+        </button>
+      </div>
+
+      {/* Tasks Section */}
+      <div className="max-w-6xl mx-auto space-y-4">
+        {/* Task 1 - In Progress */}
+        <div
+          className="flex items-center justify-between p-6 rounded-2xl text-white font-bold text-lg"
+          style={{
+            backgroundColor: "#F5D565",
+            color: "#333",
+            boxShadow: "0 10px 40px rgba(0, 0, 0, 0.1)",
+          }}
+        >
+          <div className="flex items-center gap-4">
+            <div
+              className="w-12 h-12 rounded-full flex items-center justify-center text-white"
+              style={{ backgroundColor: "#E9A23B" }}
+            >
+              <span className="text-xl">⏰</span>
+            </div>
+            <span>Task in Progress</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <button
+              className="p-2 rounded-lg hover:opacity-80 transition"
+              style={{ backgroundColor: "rgba(255, 255, 255, 0.3)" }}
+            >
+              <FiEdit2 size={20} color="#333" />
+            </button>
+            <button
+              className="p-2 rounded-lg hover:opacity-80 transition"
+              style={{ backgroundColor: "#E9A23B" }}
+            >
+              <span className="text-white text-lg">•</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Task 2 - Completed */}
+        <div
+          className="flex items-center justify-between p-6 rounded-2xl text-white font-bold text-lg"
+          style={{
+            backgroundColor: "#A0ECB1",
+            color: "#333",
+            boxShadow: "0 10px 40px rgba(0, 0, 0, 0.1)",
+          }}
+        >
+          <div className="flex items-center gap-4">
+            <div
+              className="w-12 h-12 rounded-full flex items-center justify-center text-white"
+              style={{ backgroundColor: "#32D657" }}
+            >
+              <span className="text-xl">✅</span>
+            </div>
+            <span>Task Completed</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <button
+              className="p-2 rounded-lg hover:opacity-80 transition"
+              style={{ backgroundColor: "rgba(255, 255, 255, 0.3)" }}
+            >
+              <FiEdit2 size={20} color="#333" />
+            </button>
+            <button
+              className="p-2 rounded-lg hover:opacity-80 transition"
+              style={{ backgroundColor: "#32D657" }}
+            >
+              <span className="text-white text-lg">✓</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Task 3 - Won't Do */}
+        <div
+          className="flex items-center justify-between p-6 rounded-2xl text-white font-bold text-lg"
+          style={{
+            backgroundColor: "#F7D4D3",
+            color: "#333",
+            boxShadow: "0 10px 40px rgba(0, 0, 0, 0.1)",
+          }}
+        >
+          <div className="flex items-center gap-4">
+            <div
+              className="w-12 h-12 rounded-full flex items-center justify-center text-white"
+              style={{ backgroundColor: "#DD524C" }}
+            >
+              <span className="text-xl">🎩</span>
+            </div>
+            <span>Task Won't Do</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <button
+              className="p-2 rounded-lg hover:opacity-80 transition"
+              style={{ backgroundColor: "rgba(255, 255, 255, 0.3)" }}
+            >
+              <FiEdit2 size={20} color="#333" />
+            </button>
+            <button
+              className="p-2 rounded-lg hover:opacity-80 transition"
+              style={{ backgroundColor: "#DD524C" }}
+            >
+              <span className="text-white text-lg">✕</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Task 4 - To Do */}
+        <div
+          className="flex items-center justify-between p-6 rounded-2xl text-white font-bold text-lg"
+          style={{
+            backgroundColor: "#E3E8EF",
+            color: "#333",
+            boxShadow: "0 10px 40px rgba(0, 0, 0, 0.1)",
+          }}
+        >
           <div className="flex items-center gap-4">
             <div
               className="w-12 h-12 rounded-full flex items-center justify-center"
-              style={{ backgroundColor: "#A0ECB1" }}
+              style={{ backgroundColor: "#97A3B6" }}
             >
-              <FiCheckCircle className="text-2xl" style={{ color: "#32D657" }} />
+              <span className="text-xl">🎁</span>
             </div>
             <div>
-              <h1 className="text-2xl font-bold" style={{ color: "#3662E3" }}>
-                Welcome, {user.FullName}!
-              </h1>
-              <p className="text-sm" style={{ color: "#97A3B6" }}>
-                {user.Email}
+              <span>Task To Do</span>
+              <p style={{ color: "#97A3B6" }} className="text-sm font-normal mt-1">
+                Work on a Challenge on devChallenges.io, learn TypeScript.
               </p>
             </div>
           </div>
-          <button
-            onClick={handleLogout}
-            className="flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-white transition-all hover:scale-105"
-            style={{
-              backgroundColor: "#DD524C",
-              boxShadow: "0 4px 15px #DD524C66",
-            }}
-          >
-            <FiLogOut />
-            Logout
-          </button>
         </div>
-      </div>
 
-      {/* Main Content */}
-      <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Card 1 */}
-        <div
-          className="bg-white rounded-2xl p-6 shadow-lg hover:scale-105 transition-transform cursor-pointer"
+        {/* Add New Task */}
+        <button
+          className="w-full flex items-center justify-center gap-3 p-6 rounded-2xl font-bold text-lg transition-all hover:shadow-lg"
           style={{
-            borderTop: "4px solid #3662E3",
-            boxShadow: "0 10px 40px #00000033",
+            backgroundColor: "#F5E8D5",
+            color: "#E9A23B",
+            boxShadow: "0 10px 40px rgba(0, 0, 0, 0.1)",
           }}
         >
           <div
-            className="w-16 h-16 rounded-full flex items-center justify-center mb-4"
-            style={{ backgroundColor: "#F5E8D5" }}
+            className="w-12 h-12 rounded-full flex items-center justify-center text-white"
+            style={{ backgroundColor: "#E9A23B" }}
           >
-            <span className="text-3xl">📋</span>
+            <FiPlus size={24} />
           </div>
-          <h3 className="text-xl font-bold mb-2" style={{ color: "#3662E3" }}>
-            My Tasks
-          </h3>
-          <p style={{ color: "#97A3B6" }}>View and manage your tasks</p>
-        </div>
-
-        {/* Card 2 */}
-        <div
-          className="bg-white rounded-2xl p-6 shadow-lg hover:scale-105 transition-transform cursor-pointer"
-          style={{
-            borderTop: "4px solid #E9A23B",
-            boxShadow: "0 10px 40px #00000033",
-          }}
-        >
-          <div
-            className="w-16 h-16 rounded-full flex items-center justify-center mb-4"
-            style={{ backgroundColor: "#F5D565" }}
-          >
-            <span className="text-3xl">⏰</span>
-          </div>
-          <h3 className="text-xl font-bold mb-2" style={{ color: "#E9A23B" }}>
-            In Progress
-          </h3>
-          <p style={{ color: "#97A3B6" }}>Tasks you are working on</p>
-        </div>
-
-        {/* Card 3 */}
-        <div
-          className="bg-white rounded-2xl p-6 shadow-lg hover:scale-105 transition-transform cursor-pointer"
-          style={{
-            borderTop: "4px solid #32D657",
-            boxShadow: "0 10px 40px #00000033",
-          }}
-        >
-          <div
-            className="w-16 h-16 rounded-full flex items-center justify-center mb-4"
-            style={{ backgroundColor: "#A0ECB1" }}
-          >
-            <span className="text-3xl">✅</span>
-          </div>
-          <h3 className="text-xl font-bold mb-2" style={{ color: "#32D657" }}>
-            Completed
-          </h3>
-          <p style={{ color: "#97A3B6" }}>Tasks you have finished</p>
-        </div>
-      </div>
-
-      {/* Recent Activity */}
-      <div
-        className="max-w-6xl mx-auto mt-6 bg-white rounded-2xl shadow-lg p-6"
-        style={{ boxShadow: "0 10px 40px #00000033" }}
-      >
-        <h2 className="text-xl font-bold mb-4" style={{ color: "#3662E3" }}>
-          Recent Activity
-        </h2>
-        <div className="space-y-3">
-          <div
-            className="p-4 rounded-xl"
-            style={{ backgroundColor: "#F8FAFC", borderLeft: "4px solid #32D657" }}
-          >
-            <p className="font-semibold" style={{ color: "#32D657" }}>
-              Account Created Successfully
-            </p>
-            <p className="text-sm" style={{ color: "#97A3B6" }}>
-              Welcome to Task Board! Start organizing your tasks.
-            </p>
-          </div>
-        </div>
+          Add new task
+        </button>
       </div>
     </div>
   );
