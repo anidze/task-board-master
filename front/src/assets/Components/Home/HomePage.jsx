@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FiLogOut, FiEdit2, FiPlus } from "react-icons/fi";
-
+import { IoPieChart } from "react-icons/io5";
+import { FaCheck , FaXmark} from "react-icons/fa6";
 export default function HomePage() {
   const navigate = useNavigate();
   const [user] = useState(() => {
@@ -60,8 +61,8 @@ export default function HomePage() {
         >
           <div className="flex items-center gap-4">
             <div
-              className="w-12 h-12 rounded-full flex items-center justify-center text-white"
-              style={{ backgroundColor: "#E9A23B" }}
+              className="w-14 h-14 rounded-xl flex items-center justify-center text-white"
+              style={{ backgroundColor: "#F8FAFC" }}
             >
               <span className="text-xl">⏰</span>
             </div>
@@ -69,16 +70,10 @@ export default function HomePage() {
           </div>
           <div className="flex items-center gap-3">
             <button
-              className="p-2 rounded-lg hover:opacity-80 transition"
-              style={{ backgroundColor: "rgba(255, 255, 255, 0.3)" }}
-            >
-              <FiEdit2 size={20} color="#333" />
-            </button>
-            <button
-              className="p-2 rounded-lg hover:opacity-80 transition"
+              className="w-14 h-14 rounded-xl flex items-center justify-center hover:opacity-80 transition"
               style={{ backgroundColor: "#E9A23B" }}
             >
-              <span className="text-white text-lg">•</span>
+              <span className="text-white text-lg"><IoPieChart /></span>
             </button>
           </div>
         </div>
@@ -94,25 +89,19 @@ export default function HomePage() {
         >
           <div className="flex items-center gap-4">
             <div
-              className="w-12 h-12 rounded-full flex items-center justify-center text-white"
-              style={{ backgroundColor: "#32D657" }}
+              className="w-14 h-14 rounded-xl flex items-center justify-center text-white"
+              style={{ backgroundColor: "#F8FAFC" }}
             >
-              <span className="text-xl">✅</span>
+              <span className="text-xl">🏋️‍♂️</span>
             </div>
             <span>Task Completed</span>
           </div>
           <div className="flex items-center gap-3">
             <button
-              className="p-2 rounded-lg hover:opacity-80 transition"
-              style={{ backgroundColor: "rgba(255, 255, 255, 0.3)" }}
-            >
-              <FiEdit2 size={20} color="#333" />
-            </button>
-            <button
-              className="p-2 rounded-lg hover:opacity-80 transition"
+              className="w-14 h-14 rounded-xl flex items-center justify-center hover:opacity-80 transition"
               style={{ backgroundColor: "#32D657" }}
             >
-              <span className="text-white text-lg">✓</span>
+              <span className="text-white text-lg"><FaCheck /></span>
             </button>
           </div>
         </div>
@@ -128,25 +117,19 @@ export default function HomePage() {
         >
           <div className="flex items-center gap-4">
             <div
-              className="w-12 h-12 rounded-full flex items-center justify-center text-white"
-              style={{ backgroundColor: "#DD524C" }}
+              className="w-14 h-14 rounded-xl flex items-center justify-center text-white"
+              style={{ backgroundColor: "#F8FAFC" }}
             >
-              <span className="text-xl">🎩</span>
+              <span className="text-xl">🍸</span>
             </div>
             <span>Task Won't Do</span>
           </div>
           <div className="flex items-center gap-3">
             <button
-              className="p-2 rounded-lg hover:opacity-80 transition"
-              style={{ backgroundColor: "rgba(255, 255, 255, 0.3)" }}
-            >
-              <FiEdit2 size={20} color="#333" />
-            </button>
-            <button
-              className="p-2 rounded-lg hover:opacity-80 transition"
+              className="w-14 h-14 rounded-xl flex items-center justify-center hover:opacity-80 transition"
               style={{ backgroundColor: "#DD524C" }}
             >
-              <span className="text-white text-lg">✕</span>
+              <span className="text-white text-lg"><FaXmark /></span>
             </button>
           </div>
         </div>
@@ -162,10 +145,10 @@ export default function HomePage() {
         >
           <div className="flex items-center gap-4">
             <div
-              className="w-12 h-12 rounded-full flex items-center justify-center"
-              style={{ backgroundColor: "#97A3B6" }}
+              className="w-14 h-14 rounded-xl flex items-center justify-center"
+              style={{ backgroundColor: "#F8FAFC" }}
             >
-              <span className="text-xl">🎁</span>
+              <span className="text-xl">📚</span>
             </div>
             <div>
               <span>Task To Do</span>
@@ -178,15 +161,14 @@ export default function HomePage() {
 
         {/* Add New Task */}
         <button
-          className="w-full flex items-center justify-center gap-3 p-6 rounded-2xl font-bold text-lg transition-all hover:shadow-lg"
+          className="w-full flex items-center justify-left gap-3 p-6 rounded-2xl font-bold text-lg transition-all hover:shadow-lg"
           style={{
             backgroundColor: "#F5E8D5",
-            color: "#E9A23B",
             boxShadow: "0 10px 40px rgba(0, 0, 0, 0.1)",
           }}
         >
           <div
-            className="w-12 h-12 rounded-full flex items-center justify-center text-white"
+            className="w-14 h-14 rounded-xl flex items-center justify-center text-white"
             style={{ backgroundColor: "#E9A23B" }}
           >
             <FiPlus size={24} />
