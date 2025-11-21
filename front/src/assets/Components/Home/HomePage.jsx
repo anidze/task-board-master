@@ -28,7 +28,7 @@ export default function HomePage() {
       {/* Header */}
       <div className="max-w-6xl mx-auto flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-3xl font-bold" style={{ color: "#3662E3" }}>
+          <h1 className="text-3xl font-bold" >
             My Task Board
           </h1>
           <p style={{ color: "#97A3B6" }} className="text-sm mt-1">
@@ -49,7 +49,7 @@ export default function HomePage() {
       </div>
 
       {/* Tasks Section */}
-      <div className="max-w-6xl mx-auto space-y-4">
+      <div className="max-w-6xl mx-auto space-y-4 gap-y-8">
         {/* Task 1 - In Progress */}
         <div
           className="flex items-center justify-between p-6 rounded-2xl text-white font-bold text-lg"
@@ -84,7 +84,7 @@ export default function HomePage() {
           style={{
             backgroundColor: "#A0ECB1",
             color: "#333",
-            boxShadow: "0 10px 40px rgba(0, 0, 0, 0.1)",
+            // boxShadow: "0 10px 40px rgba(0, 0, 0, 0.1)",
           }}
         >
           <div className="flex items-center gap-4">
@@ -112,7 +112,7 @@ export default function HomePage() {
           style={{
             backgroundColor: "#F7D4D3",
             color: "#333",
-            boxShadow: "0 10px 40px rgba(0, 0, 0, 0.1)",
+            // boxShadow: "0 10px 40px rgba(0, 0, 0, 0.1)",
           }}
         >
           <div className="flex items-center gap-4">
@@ -140,7 +140,7 @@ export default function HomePage() {
           style={{
             backgroundColor: "#E3E8EF",
             color: "#333",
-            boxShadow: "0 10px 40px rgba(0, 0, 0, 0.1)",
+            // boxShadow: "0 10px 40px rgba(0, 0, 0, 0.1)",
           }}
         >
           <div className="flex items-center gap-4">
@@ -164,7 +164,7 @@ export default function HomePage() {
           className="w-full flex items-center justify-left gap-3 p-6 rounded-2xl font-bold text-lg transition-all hover:shadow-lg"
           style={{
             backgroundColor: "#F5E8D5",
-            boxShadow: "0 10px 40px rgba(0, 0, 0, 0.1)",
+            // boxShadow: "0 10px 40px rgba(0, 0, 0, 0.1)",
           }}
         >
           <div
