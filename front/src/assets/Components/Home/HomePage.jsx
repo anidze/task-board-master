@@ -3,8 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { FiLogOut, FiEdit2, FiPlus } from "react-icons/fi";
 import { IoPieChart } from "react-icons/io5";
 import { FaCheck , FaXmark} from "react-icons/fa6";
+import AddTaskModal from "../Modal/Modal";
 export default function HomePage() {
   const navigate = useNavigate();
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [user] = useState(() => {
     const userData = localStorage.getItem("user");
     return userData ? JSON.parse(userData) : null;
@@ -161,6 +163,7 @@ export default function HomePage() {
 
         {/* Add New Task */}
         <button
+          onClick={() => setIsModalOpen(true)}
           className="w-full flex items-center justify-left gap-3 p-6 rounded-2xl font-bold text-lg transition-all hover:shadow-lg"
           style={{
             backgroundColor: "#F5E8D5",
@@ -176,6 +179,9 @@ export default function HomePage() {
           Add new task
         </button>
       </div>
+
+      {/* Add Task Modal */}
+      <AddTaskModal open={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </div>
   );
 }
