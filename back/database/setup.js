@@ -4,85 +4,187 @@ const createTables = async () => {
   try {
     const pool = await getConnection();
     
-    console.log('🚀 Setting up database tables...');
+    console.log('🚀 Setting up database tables with separate categories...');
 
-    // Create Tasks table without foreign key constraint for now
-    const createTasksTable = `
-      IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'Tasks')
+    // Drop existing view and tables first
+    const dropExisting = `
+      -- Drop view first
+      IF OBJECT_ID('dbo.TaskStats', 'V') IS NOT NULL
       BEGIN
-          CREATE TABLE [dbo].[Tasks] (
-              [TaskID] INT IDENTITY(1,1) PRIMARY KEY,
-              [Title] NVARCHAR(255) NOT NULL,
-              [Description] NVARCHAR(MAX),
-              [Status] NVARCHAR(50) NOT NULL DEFAULT 'To Do',
-              [Priority] NVARCHAR(50) DEFAULT 'Medium',
-              [Icon] NVARCHAR(10) DEFAULT '📚',
-              [UserEmail] NVARCHAR(255) NOT NULL,
-              [CreatedAt] DATETIME2 DEFAULT GETDATE(),
-              [UpdatedAt] DATETIME2 DEFAULT GETDATE()
-          );
-          PRINT 'Tasks table created successfully';
+          DROP VIEW [dbo].[TaskStats];
+          PRINT 'TaskStats view dropped';
+      END
+
+      -- Drop existing tables if they exist
+      IF OBJECT_ID('dbo.Tasks', 'U') IS NOT NULL
+      BEGIN
+          DROP TABLE [dbo].[Tasks];
+          PRINT 'Tasks table dropped';
+      END
+
+      IF OBJECT_ID('dbo.CompletedTasks', 'U') IS NOT NULL
+      BEGIN
+          DROP TABLE [dbo].[CompletedTasks];
+          PRINT 'CompletedTasks table dropped';
+      END
+
+      IF OBJECT_ID('dbo.ToDoTasks', 'U') IS NOT NULL
+      BEGIN
+          DROP TABLE [dbo].[ToDoTasks];
+          PRINT 'ToDoTasks table dropped';
+      END
+
+      IF OBJECT_ID('dbo.InProgressTasks', 'U') IS NOT NULL
+      BEGIN
+          DROP TABLE [dbo].[InProgressTasks];
+          PRINT 'InProgressTasks table dropped';
+      END
+
+      IF OBJECT_ID('dbo.WontDoTasks', 'U') IS NOT NULL
+      BEGIN
+          DROP TABLE [dbo].[WontDoTasks];
+          PRINT 'WontDoTasks table dropped';
       END
     `;
 
-    await pool.request().query(createTasksTable);
+    await pool.request().query(dropExisting);
 
-    // Create indexes
+    // Create ToDoTasks table
+    const createToDoTasksTable = `
+      CREATE TABLE [dbo].[ToDoTasks] (
+          [TaskID] INT IDENTITY(1,1) PRIMARY KEY,
+          [Title] NVARCHAR(255) NOT NULL,
+          [Description] NVARCHAR(MAX),
+          [Priority] NVARCHAR(50) DEFAULT 'Medium',
+          [Icon] NVARCHAR(10) DEFAULT '📚',
+          [UserEmail] NVARCHAR(255) NOT NULL,
+          [CreatedAt] DATETIME2 DEFAULT GETDATE(),
+          [UpdatedAt] DATETIME2 DEFAULT GETDATE()
+      );
+      PRINT 'ToDoTasks table created successfully';
+    `;
+
+    // Create InProgressTasks table
+    const createInProgressTasksTable = `
+      CREATE TABLE [dbo].[InProgressTasks] (
+          [TaskID] INT IDENTITY(1,1) PRIMARY KEY,
+          [Title] NVARCHAR(255) NOT NULL,
+          [Description] NVARCHAR(MAX),
+          [Priority] NVARCHAR(50) DEFAULT 'Medium',
+          [Icon] NVARCHAR(10) DEFAULT '⏰',
+          [UserEmail] NVARCHAR(255) NOT NULL,
+          [CreatedAt] DATETIME2 DEFAULT GETDATE(),
+          [UpdatedAt] DATETIME2 DEFAULT GETDATE(),
+          [StartedAt] DATETIME2 DEFAULT GETDATE()
+      );
+      PRINT 'InProgressTasks table created successfully';
+    `;
+
+    // Create WontDoTasks table
+    const createWontDoTasksTable = `
+      CREATE TABLE [dbo].[WontDoTasks] (
+          [TaskID] INT IDENTITY(1,1) PRIMARY KEY,
+          [Title] NVARCHAR(255) NOT NULL,
+          [Description] NVARCHAR(MAX),
+          [Priority] NVARCHAR(50) DEFAULT 'Medium',
+          [Icon] NVARCHAR(10) DEFAULT '🍸',
+          [UserEmail] NVARCHAR(255) NOT NULL,
+          [CreatedAt] DATETIME2 DEFAULT GETDATE(),
+          [UpdatedAt] DATETIME2 DEFAULT GETDATE(),
+          [CancelledAt] DATETIME2 DEFAULT GETDATE(),
+          [CancelReason] NVARCHAR(MAX)
+      );
+      PRINT 'WontDoTasks table created successfully';
+    `;
+
+    // Create CompletedTasks table
+    const createCompletedTasksTable = `
+      CREATE TABLE [dbo].[CompletedTasks] (
+          [TaskID] INT IDENTITY(1,1) PRIMARY KEY,
+          [Title] NVARCHAR(255) NOT NULL,
+          [Description] NVARCHAR(MAX),
+          [Priority] NVARCHAR(50),
+          [Icon] NVARCHAR(10) DEFAULT '🏋️‍♂️',
+          [UserEmail] NVARCHAR(255) NOT NULL,
+          [CreatedAt] DATETIME2,
+          [CompletedAt] DATETIME2 DEFAULT GETDATE(),
+          [TimeToComplete] AS ISNULL(DATEDIFF(hour, CreatedAt, CompletedAt), 0)
+      );
+      PRINT 'CompletedTasks table created successfully';
+    `;
+
+    await pool.request().query(createToDoTasksTable);
+    await pool.request().query(createInProgressTasksTable);
+    await pool.request().query(createWontDoTasksTable);
+    await pool.request().query(createCompletedTasksTable);
+
+    // Create indexes for all tables
     const createIndexes = `
-      IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = 'IX_Tasks_UserEmail')
-      BEGIN
-          CREATE INDEX [IX_Tasks_UserEmail] ON [dbo].[Tasks] ([UserEmail]);
-      END
+      -- ToDoTasks indexes
+      CREATE INDEX [IX_ToDoTasks_UserEmail] ON [dbo].[ToDoTasks] ([UserEmail]);
       
-      IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = 'IX_Tasks_Status')
-      BEGIN
-          CREATE INDEX [IX_Tasks_Status] ON [dbo].[Tasks] ([Status]);
-      END
+      -- InProgressTasks indexes
+      CREATE INDEX [IX_InProgressTasks_UserEmail] ON [dbo].[InProgressTasks] ([UserEmail]);
+
+      -- WontDoTasks indexes
+      CREATE INDEX [IX_WontDoTasks_UserEmail] ON [dbo].[WontDoTasks] ([UserEmail]);
+
+      -- CompletedTasks indexes
+      CREATE INDEX [IX_CompletedTasks_UserEmail] ON [dbo].[CompletedTasks] ([UserEmail]);
     `;
 
     await pool.request().query(createIndexes);
 
-    // Create view for statistics
+    // Create comprehensive view for statistics
     const createView = `
-      CREATE OR ALTER VIEW [dbo].[TaskStats] AS
+      CREATE VIEW [dbo].[TaskStats] AS
       SELECT 
           u.FullName as UserName,
           u.Email as UserEmail,
-          ISNULL(COUNT(t.TaskID), 0) as TotalTasks,
-          ISNULL(SUM(CASE WHEN t.Status = 'Completed' THEN 1 ELSE 0 END), 0) as CompletedTasks,
-          ISNULL(SUM(CASE WHEN t.Status = 'In Progress' THEN 1 ELSE 0 END), 0) as InProgressTasks,
-          ISNULL(SUM(CASE WHEN t.Status = 'To Do' THEN 1 ELSE 0 END), 0) as ToDoTasks,
-          ISNULL(SUM(CASE WHEN t.Status = 'Won''t do' THEN 1 ELSE 0 END), 0) as WontDoTasks
-      FROM [dbo].[Register_Tab] u
-      LEFT JOIN [dbo].[Tasks] t ON u.Email = t.UserEmail
-      GROUP BY u.Email, u.FullName;
+          (SELECT ISNULL(COUNT(TaskID), 0) FROM ToDoTasks WHERE UserEmail = u.Email) as ToDoTasks,
+          (SELECT ISNULL(COUNT(TaskID), 0) FROM InProgressTasks WHERE UserEmail = u.Email) as InProgressTasks,
+          (SELECT ISNULL(COUNT(TaskID), 0) FROM WontDoTasks WHERE UserEmail = u.Email) as WontDoTasks,
+          (SELECT ISNULL(COUNT(TaskID), 0) FROM CompletedTasks WHERE UserEmail = u.Email) as CompletedTasks,
+          (
+              (SELECT ISNULL(COUNT(TaskID), 0) FROM ToDoTasks WHERE UserEmail = u.Email) +
+              (SELECT ISNULL(COUNT(TaskID), 0) FROM InProgressTasks WHERE UserEmail = u.Email) +
+              (SELECT ISNULL(COUNT(TaskID), 0) FROM WontDoTasks WHERE UserEmail = u.Email) +
+              (SELECT ISNULL(COUNT(TaskID), 0) FROM CompletedTasks WHERE UserEmail = u.Email)
+          ) as TotalTasks,
+          (SELECT ISNULL(AVG(CAST(TimeToComplete AS FLOAT)), 0) FROM CompletedTasks WHERE UserEmail = u.Email) as AvgCompletionTimeHours
+      FROM [dbo].[Register_Tab] u;
     `;
 
     await pool.request().query(createView);
 
     console.log('✅ Database setup completed successfully!');
-    console.log('📊 Tables: Tasks, Register_Tab');
+    console.log('📊 Tables: ToDoTasks, InProgressTasks, WontDoTasks, CompletedTasks, Register_Tab');
     console.log('📈 Views: TaskStats');
 
-    // Add some sample data if tasks table is empty
-    const checkTasks = await pool.request().query('SELECT COUNT(*) as count FROM Tasks');
+    // Add sample data if tables are empty
+    const checkTasks = await pool.request().query('SELECT COUNT(*) as count FROM ToDoTasks');
     if (checkTasks.recordset[0].count === 0) {
       // Get first user email for sample data
       const users = await pool.request().query('SELECT TOP 1 Email FROM Register_Tab');
       if (users.recordset.length > 0) {
         const userEmail = users.recordset[0].Email;
         
-        const insertSample = `
-          INSERT INTO [dbo].[Tasks] ([Title], [Description], [Status], [Priority], [Icon], [UserEmail])
-          VALUES 
-              ('Task in Progress', 'Working on important project features', 'In Progress', 'High', '⏰', '${userEmail}'),
-              ('Task Completed', 'Successfully finished the previous milestone', 'Completed', 'Medium', '🏋️‍♂️', '${userEmail}'),
-              ('Task Won''t Do', 'Decided not to proceed with this feature', 'Won''t do', 'Low', '🍸', '${userEmail}'),
-              ('Task To Do', 'Work on a Challenge on devChallenges.io, learn TypeScript.', 'To Do', 'Medium', '📚', '${userEmail}');
+        const insertSamples = `
+          INSERT INTO [dbo].[ToDoTasks] ([Title], [Description], [Priority], [Icon], [UserEmail])
+          VALUES ('Task To Do', 'Work on a Challenge on devChallenges.io, learn TypeScript.', 'Medium', '📚', '${userEmail}');
+          
+          INSERT INTO [dbo].[InProgressTasks] ([Title], [Description], [Priority], [Icon], [UserEmail])
+          VALUES ('Task in Progress', 'Working on important project features', 'High', '⏰', '${userEmail}');
+          
+          INSERT INTO [dbo].[WontDoTasks] ([Title], [Description], [Priority], [Icon], [UserEmail], [CancelReason])
+          VALUES ('Task Won''t Do', 'Decided not to proceed with this feature', 'Low', '🍸', '${userEmail}', 'Feature not aligned with current goals');
+          
+          INSERT INTO [dbo].[CompletedTasks] ([Title], [Description], [Priority], [Icon], [UserEmail], [CreatedAt])
+          VALUES ('Task Completed', 'Successfully finished the previous milestone', 'Medium', '🏋️‍♂️', '${userEmail}', DATEADD(day, -2, GETDATE()));
         `;
         
-        await pool.request().query(insertSample);
-        console.log('✅ Sample tasks added');
+        await pool.request().query(insertSamples);
+        console.log('✅ Sample tasks added to all categories');
       }
     }
 

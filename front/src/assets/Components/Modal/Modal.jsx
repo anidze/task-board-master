@@ -1,4 +1,90 @@
+import { useState } from 'react';
+import { IoPieChart } from "react-icons/io5";
+import { FaCheck, FaXmark } from "react-icons/fa6";
 export default function AddTaskModal({ open, onClose }) {
+  const [formData, setFormData] = useState({
+    title: '',
+    description: '',
+    status: 'To Do',
+    priority: 'Medium',
+    icon: '📚' // Default to To Do icon
+  });
+
+  // Status-to-icon mapping to match homepage
+  const statusIcons = {
+    'To Do': '📚',
+    'In Progress': '⏰',
+    "Won't do": '🍸',
+    'Completed': '🏋️‍♂️'
+  };
+
+  const icons = ['📚', '⏰', '🍸', '🏋️‍♂️', '👤', '💬', '🎪', '🎨'];
+  const statuses = [
+    { label: "To Do", color: "#E3E8EF", value: "To Do", icon: '📚', reactIcon: null },
+    { label: "In Progress", color: "#E9A23B", value: "In Progress", icon: '⏰', reactIcon: <IoPieChart /> },
+    { label: "Won't do", color: "#DD524C", value: "Won't do", icon: '🍸', reactIcon: <FaXmark /> }
+  ];
+
+  const handleStatusChange = (newStatus) => {
+    setFormData({
+      ...formData,
+      status: newStatus,
+      icon: statusIcons[newStatus] || formData.icon
+    });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!formData.title.trim()) {
+      alert('Please enter a task title');
+      return;
+    }
+
+    try {
+      const user = JSON.parse(localStorage.getItem('user'));
+      if (!user) {
+        alert('Please log in first');
+        return;
+      }
+
+      const response = await fetch('http://localhost:5000/api/tasks', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title: formData.title,
+          description: formData.description,
+          status: formData.status,
+          priority: formData.priority,
+          icon: formData.icon,
+          userEmail: user.Email
+        }),
+      });
+
+      if (response.ok) {
+        alert('Task created successfully!');
+        setFormData({
+          title: '',
+          description: '',
+          status: 'To Do',
+          priority: 'Medium',
+          icon: '📚'
+        });
+        onClose();
+        // Refresh page to show new task
+        window.location.reload();
+      } else {
+        const error = await response.json();
+        alert('Failed to create task: ' + error.error);
+      }
+    } catch (error) {
+      console.error('Error creating task:', error);
+      alert('Failed to create task');
+    }
+  };
+
   if (!open) return null;
 
   return (
@@ -26,12 +112,12 @@ export default function AddTaskModal({ open, onClose }) {
           ×
         </button>
 
-        <div className="p-8 pt-12 rounded-2xl">
+        <div className="p-8 pt-12">
           <h2 className="text-2xl font-bold mb-8" style={{ color: "#333" }}>
             Task details
           </h2>
 
-          <form className="space-y-6">
+          <form className="space-y-6" onSubmit={handleSubmit}>
             {/* Task Name */}
             <div>
               <label className="block text-sm font-medium mb-2" style={{ color: "#97A3B6" }}>
@@ -39,13 +125,16 @@ export default function AddTaskModal({ open, onClose }) {
               </label>
               <input
                 type="text"
-                placeholder="Task Won't Do"
+                placeholder="Enter task name"
+                value={formData.title}
+                onChange={(e) => setFormData({...formData, title: e.target.value})}
                 className="w-full px-4 py-3 border-2 rounded-lg focus:outline-none transition"
                 style={{
                   borderColor: "#3662E3",
                   backgroundColor: "#F8FAFC",
                   color: "#333",
                 }}
+                required
               />
             </div>
 
@@ -56,6 +145,8 @@ export default function AddTaskModal({ open, onClose }) {
               </label>
               <textarea
                 placeholder="Enter a short description"
+                value={formData.description}
+                onChange={(e) => setFormData({...formData, description: e.target.value})}
                 rows="5"
                 className="w-full px-4 py-3 border-2 rounded-lg focus:outline-none transition resize-none"
                 style={{
@@ -72,14 +163,15 @@ export default function AddTaskModal({ open, onClose }) {
                 Icon
               </label>
               <div className="flex gap-3 flex-wrap">
-                {['👤', '💬', '⭐', '🎪', '🎨', '🎭'].map((icon, idx) => (
+                {icons.map((icon, idx) => (
                   <button
                     key={idx}
                     type="button"
-                    className="w-12 h-12 rounded-lg flex items-center justify-center text-xl transition"
+                    onClick={() => setFormData({...formData, icon})}
+                    className="w-12 h-12 rounded-lg flex items-center justify-center text-xl transition hover:opacity-80"
                     style={{
-                      backgroundColor: idx === 2 ? "#F5D565" : "#E3E8EF",
-                      border: idx === 2 ? `2px solid #F5D565` : "2px solid transparent",
+                      backgroundColor: formData.icon === icon ? "#F5D565" : "#E3E8EF",
+                      border: formData.icon === icon ? `2px solid #F5D565` : "2px solid transparent",
                     }}
                   >
                     {icon}
@@ -94,28 +186,38 @@ export default function AddTaskModal({ open, onClose }) {
                 Status
               </label>
               <div className="flex gap-3 flex-col">
-                {[
-                  { label: "In Progress", color: "#E9A23B", selected: false },
-                  { label: "Completed", color: "#32D657", selected: false },
-                  { label: "Won't do", color: "#DD524C", selected: true },
-                ].map((status, idx) => (
+                {statuses.map((status, idx) => (
                   <button
                     key={idx}
                     type="button"
-                    className="flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition border-2"
+                    onClick={() => handleStatusChange(status.value)}
+                    className="flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition border-2 hover:opacity-80"
                     style={{
-                      backgroundColor: status.selected ? "#F8FAFC" : "white",
-                      borderColor: status.selected ? status.color : "#E3E8EF",
+                      backgroundColor: formData.status === status.value ? "#F8FAFC" : "white",
+                      borderColor: formData.status === status.value ? status.color : "#E3E8EF",
                       color: "#333",
                     }}
                   >
                     <div
-                      className="w-5 h-5 rounded-full flex items-center justify-center shrink-0"
-                      style={{ backgroundColor: status.color }}
+                      className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 text-lg"
+                      style={{ backgroundColor: "#F8FAFC" }}
                     >
-                      {status.selected && <span style={{ color: "white", fontSize: "12px" }}>✓</span>}
+                      {status.icon}
                     </div>
-                    {status.label}
+                    <div className="flex-1 text-left">
+                      <div className="font-semibold">{status.label}</div>
+                      {formData.status === status.value && (
+                        <div className="text-sm" style={{ color: status.color }}>Selected ✓</div>
+                      )}
+                    </div>
+                    {status.reactIcon && (
+                      <div
+                        className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
+                        style={{ backgroundColor: status.color, color: 'white' }}
+                      >
+                        {status.reactIcon}
+                      </div>
+                    )}
                   </button>
                 ))}
               </div>
@@ -126,13 +228,13 @@ export default function AddTaskModal({ open, onClose }) {
               <button
                 type="button"
                 onClick={onClose}
-                className="flex-1 px-4 py-3 rounded-lg font-semibold transition flex items-center justify-center gap-2"
+                className="flex-1 px-4 py-3 rounded-lg font-semibold transition hover:opacity-80"
                 style={{
                   backgroundColor: "#E3E8EF",
                   color: "#333",
                 }}
               >
-                <span>🗑️</span> Delete
+                Cancel
               </button>
               <button
                 type="submit"
