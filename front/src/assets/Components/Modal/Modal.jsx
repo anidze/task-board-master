@@ -26,7 +26,7 @@ export default function AddTaskModal({ open, onClose }) {
           ×
         </button>
 
-        <div className="p-8 pt-12">
+        <div className="p-8 pt-12 rounded-2xl">
           <h2 className="text-2xl font-bold mb-8" style={{ color: "#333" }}>
             Task details
           </h2>
