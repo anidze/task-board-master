@@ -3,6 +3,7 @@ const cors = require('cors');
 require('dotenv').config();
 const { getConnection } = require('./config/database');
 const authRoutes = require('./routes/auth');
+const taskRoutes = require('./routes/tasks');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -14,6 +15,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/tasks', taskRoutes);
 
 // Test database connection on startup
 (async () => {
